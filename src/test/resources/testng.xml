@@ -1,0 +1,19 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="HackathonSuite">
+
+    <listeners>
+        <listener class-name="listeners.TestListener"/>
+    </listeners>
+
+    <test name="FormTests">
+
+        <classes>
+
+            <class name="tests.FormTest"/>
+
+        </classes>
+
+    </test>
+
+</suite>
