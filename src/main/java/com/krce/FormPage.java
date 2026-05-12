@@ -19,7 +19,7 @@ public class FormPage {
         this.js = (JavascriptExecutor) driver;
     }
 
-    // ================= NAVIGATION =================
+
 
     public void openPage() {
         driver.get("https://demoqa.com/automation-practice-form");
@@ -50,7 +50,6 @@ public class FormPage {
         js.executeScript("arguments[0].click();", practiceForm);
     }
 
-    // ================= LOCATORS =================
 
     By firstname = By.id("firstName");
     By lastname = By.id("lastName");
@@ -65,7 +64,6 @@ public class FormPage {
     By submit = By.id("submit");
     By successPopUp = By.id("example-modal-sizes-title-lg");
 
-    // ================= ACTION METHODS =================
 
     public void setName() {
         driver.findElement(firstname).sendKeys("Kannagi");
@@ -128,8 +126,6 @@ public class FormPage {
         addr.sendKeys("AAABBBYY");
     }
 
-    // ================= STATE & CITY FIX =================
-
     public void setStateCity() {
 
         js.executeScript("window.scrollBy(0,300)");
@@ -157,7 +153,6 @@ public class FormPage {
         city.sendKeys(Keys.ENTER);
     }
 
-    // ================= SUBMIT =================
 
     public void submit() {
         js.executeScript("arguments[0].click();",
@@ -181,6 +176,3 @@ public class FormPage {
             return driver.findElement(successPopUp).isDisplayed();
         } catch (Exception e) {
             return false;
-        }
-    }
-}

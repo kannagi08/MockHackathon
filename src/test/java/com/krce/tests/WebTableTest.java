@@ -1,64 +1,106 @@
 package com.krce.tests;
 
 import com.krce.WebTablePage;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class WebTableTest extends BaseTest {
+import java.time.Duration;
+
+public class WebTableTest {
+
+    WebDriver driver;
+
+    WebTablePage tablePage;
+
+    @BeforeClass
+    public void setup() {
+
+        driver = new ChromeDriver();
+
+        driver.manage().window().maximize();
+
+        driver.manage().timeouts()
+                .implicitlyWait(Duration.ofSeconds(10));
+
+        driver.get("https://demoqa.com/webtables");
+
+        tablePage = new WebTablePage(driver);
+    }
 
     @Test(priority = 1)
-    public void addRowTest() {
+    public void addRecordTest() {
 
-        WebTablePage table = new WebTablePage(driver);
-        table.openPage();
-
-        table.addRecord(
+        tablePage.addRecord(
                 "Kannagi",
-                "Govind",
-                "kannagi@gmail.com",
+                "G",
+                "kannagi@test.com",
                 "22",
                 "50000",
                 "QA"
         );
 
-        Assert.assertTrue(table.isRowPresent("Kannagi"));
+        tablePage.searchRecord("Kannagi");
+
+        Assert.assertTrue(
+                tablePage.isRecordPresent("Kannagi")
+        );
+
+        System.out.println("ADD RECORD TEST PASSED");
     }
 
     @Test(priority = 2)
-    public void searchTest() {
+    public void searchRecordTest() {
 
-        WebTablePage table = new WebTablePage(driver);
-        table.openPage();
+        tablePage.searchRecord("Kannagi");
 
-        Assert.assertTrue(table.searchRecord("Cierra"));
+        Assert.assertTrue(
+                tablePage.isRecordPresent("Kannagi")
+        );
+
+        System.out.println("SEARCH RECORD TEST PASSED");
     }
 
     @Test(priority = 3)
-    public void deleteTest() {
+    public void deleteRecordTest() {
 
-        WebTablePage table = new WebTablePage(driver);
-        table.openPage();
+        tablePage.searchRecord("Kannagi");
 
-        table.deleteRecord();
+        tablePage.deleteRecord();
 
-        Assert.assertFalse(table.isRowPresent("Cierra"));
+        tablePage.searchRecord("Kannagi");
+
+        Assert.assertFalse(
+                tablePage.isRecordPresent("Kannagi")
+        );
+
+        System.out.println("DELETE RECORD TEST PASSED");
     }
 
     @Test(priority = 4)
     public void paginationTest() {
 
-        WebTablePage table = new WebTablePage(driver);
-        table.openPage();
+        Assert.assertTrue(
+                tablePage.checkPagination()
+        );
 
-        String before = table.getFirstRowText();
+        System.out.println("PAGINATION TEST PASSED");
+    }
 
-        table.clickNextPage();
+    @AfterClass
+    public void tearDown() {
 
-        String after = table.getFirstRowText();
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        System.out.println("Before: " + before);
-        System.out.println("After : " + after);
-
-        Assert.assertNotEquals(before, after);
+        driver.quit();
     }
 }

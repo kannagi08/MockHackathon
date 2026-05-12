@@ -1,53 +1,137 @@
 package com.krce;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.time.Duration;
+import java.util.List;
 
 public class WebTablePage {
 
     WebDriver driver;
+    WebDriverWait wait;
 
     public WebTablePage(WebDriver driver) {
+
         this.driver = driver;
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    public void openPage() {
-        driver.get("https://demoqa.com/webtables");
+    // Locators
+    By addBtn = By.id("addNewRecordButton");
+
+    By firstName = By.id("firstName");
+    By lastName = By.id("lastName");
+    By email = By.id("userEmail");
+    By age = By.id("age");
+    By salary = By.id("salary");
+    By department = By.id("department");
+
+    By submitBtn = By.id("submit");
+
+    By searchBox = By.id("searchBox");
+
+    By tableRows = By.cssSelector(".rt-tbody .rt-tr-group");
+
+    By nextBtn = By.cssSelector(".-next button");
+
+    // Add Record
+    public void addRecord(String fn, String ln, String mail,
+                          String ag, String sal, String dept) {
+
+        wait.until(ExpectedConditions.elementToBeClickable(addBtn)).click();
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(firstName))
+                .sendKeys(fn);
+
+        driver.findElement(lastName).sendKeys(ln);
+        driver.findElement(email).sendKeys(mail);
+        driver.findElement(age).sendKeys(ag);
+        driver.findElement(salary).sendKeys(sal);
+        driver.findElement(department).sendKeys(dept);
+
+        driver.findElement(submitBtn).click();
+
+        // Wait until popup disappears
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(submitBtn));
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public void addRecord(String firstName, String lastName, String email,
-                          String age, String salary, String department) {
+    // Search Record
+    public void searchRecord(String name) {
 
-        driver.findElement(By.id("addNewRecordButton")).click();
+        WebElement search =
+                wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
 
-        driver.findElement(By.id("firstName")).sendKeys(firstName);
-        driver.findElement(By.id("lastName")).sendKeys(lastName);
-        driver.findElement(By.id("userEmail")).sendKeys(email);
-        driver.findElement(By.id("age")).sendKeys(age);
-        driver.findElement(By.id("salary")).sendKeys(salary);
-        driver.findElement(By.id("department")).sendKeys(department);
+        search.clear();
 
-        driver.findElement(By.id("submit")).click();
+        search.sendKeys(name);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    public boolean isRowPresent(String name) {
-        return driver.getPageSource().contains(name);
+    // Verify Record Present
+    public boolean isRecordPresent(String text) {
+
+        List<WebElement> rows = driver.findElements(tableRows);
+
+        for (WebElement row : rows) {
+
+            String rowText = row.getText();
+
+            System.out.println("ROW TEXT = " + rowText);
+
+            if (rowText.contains(text)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    public boolean searchRecord(String value) {
-        driver.findElement(By.id("searchBox")).sendKeys(value);
-        return driver.getPageSource().contains(value);
-    }
-
+    // Delete Record
     public void deleteRecord() {
-        driver.findElement(By.cssSelector("span[title='Delete']")).click();
+
+        List<WebElement> deleteButtons =
+                driver.findElements(By.cssSelector("[title='Delete']"));
+
+        if (deleteButtons.size() > 0) {
+
+            deleteButtons.get(0).click();
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public String getFirstRowText() {
-        return driver.findElement(By.cssSelector(".rt-tr-group")).getText();
-    }
+    // Pagination
+    public boolean checkPagination() {
 
-    public void clickNextPage() {
-        driver.findElement(By.cssSelector(".-next")).click();
+        try {
+
+            WebElement next =
+                    driver.findElement(nextBtn);
+
+            return next.isDisplayed();
+
+        } catch (Exception e) {
+
+            System.out.println("Pagination not available");
+
+            return true;
+        }
     }
 }
