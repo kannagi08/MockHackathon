@@ -1,4 +1,3 @@
-
 package com.krce.tests;
 
 import org.openqa.selenium.WebDriver;
@@ -21,8 +20,7 @@ public class BaseTest {
         options.addArguments("--disable-notifications");
 
         driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2)); // keep LOW
-        driver.get("https://demoqa.com/webtables");
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
     }
 
     @AfterClass

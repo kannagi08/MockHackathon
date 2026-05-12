@@ -1,134 +1,53 @@
 package com.krce;
 
-import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
-import java.util.List;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 
 public class WebTablePage {
 
     WebDriver driver;
-    WebDriverWait wait;
 
     public WebTablePage(WebDriver driver) {
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
-    // Locators
-    By addBtn = By.id("addNewRecordButton");
-    By searchBox = By.id("searchBox");
-
-    By firstName = By.id("firstName");
-    By lastName = By.id("lastName");
-    By email = By.id("userEmail");
-    By age = By.id("age");
-    By salary = By.id("salary");
-    By department = By.id("department");
-    By submit = By.id("submit");
-
-    By rows = By.cssSelector(".rt-tbody .rt-tr-group");
-
-    // ✅ SAFE PAGE LOAD (NO CLICK ELEMENTS MENU)
     public void openPage() {
         driver.get("https://demoqa.com/webtables");
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(addBtn));
     }
 
-    // ✅ SAFE CLICK METHOD (FIX FOR CLICK INTERCEPTED)
-    private void safeClick(By locator) {
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+    public void addRecord(String firstName, String lastName, String email,
+                          String age, String salary, String department) {
 
-        ((JavascriptExecutor) driver)
-                .executeScript("arguments[0].scrollIntoView({block:'center'});", element);
+        driver.findElement(By.id("addNewRecordButton")).click();
 
-        wait.until(ExpectedConditions.elementToBeClickable(element));
+        driver.findElement(By.id("firstName")).sendKeys(firstName);
+        driver.findElement(By.id("lastName")).sendKeys(lastName);
+        driver.findElement(By.id("userEmail")).sendKeys(email);
+        driver.findElement(By.id("age")).sendKeys(age);
+        driver.findElement(By.id("salary")).sendKeys(salary);
+        driver.findElement(By.id("department")).sendKeys(department);
 
-        try {
-            element.click();
-        } catch (ElementClickInterceptedException e) {
-            ((JavascriptExecutor) driver)
-                    .executeScript("arguments[0].click();", element);
-        }
+        driver.findElement(By.id("submit")).click();
     }
 
-    // Add record
-    public void addRecord(String fn, String ln, String em, String ag, String sal, String dep) {
-
-        safeClick(addBtn);
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(firstName));
-
-        driver.findElement(firstName).sendKeys(fn);
-        driver.findElement(lastName).sendKeys(ln);
-        driver.findElement(email).sendKeys(em);
-        driver.findElement(age).sendKeys(ag);
-        driver.findElement(salary).sendKeys(sal);
-        driver.findElement(department).sendKeys(dep);
-
-        safeClick(submit);
-
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(submit));
+    public boolean isRowPresent(String name) {
+        return driver.getPageSource().contains(name);
     }
 
-    // Search
     public boolean searchRecord(String value) {
-
-        WebElement search = wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
-
-        search.clear();
-        search.sendKeys(value);
-
-        return wait.until(driver ->
-                driver.getPageSource().contains(value)
-        );
+        driver.findElement(By.id("searchBox")).sendKeys(value);
+        return driver.getPageSource().contains(value);
     }
 
-    // Delete first record
     public void deleteRecord() {
-
-        By deleteBtn = By.id("delete-record-1");
-
-        safeClick(deleteBtn);
+        driver.findElement(By.cssSelector("span[title='Delete']")).click();
     }
 
-    // Row check
-    public boolean isRowPresent(String text) {
-
-        return wait.until(driver ->
-                driver.getPageSource().contains(text)
-        );
-    }
-
-    // FIRST ROW TEXT (FIXED TIMEOUT ISSUE)
     public String getFirstRowText() {
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(rows));
-
-        List<WebElement> allRows = driver.findElements(rows);
-
-        for (WebElement row : allRows) {
-            String text = row.getText().trim();
-            if (!text.isEmpty()) {
-                return text;
-            }
-        }
-
-        return "";
+        return driver.findElement(By.cssSelector(".rt-tr-group")).getText();
     }
 
-    // NEXT PAGE CLICK (SAFE)
     public void clickNextPage() {
-
-        By nextBtn = By.xpath("//button[text()='Next' or contains(text(),'Next')]");
-
-        safeClick(nextBtn);
-
-        wait.until(ExpectedConditions.stalenessOf(
-                driver.findElements(rows).get(0)
-        ));
+        driver.findElement(By.cssSelector(".-next")).click();
     }
 }
