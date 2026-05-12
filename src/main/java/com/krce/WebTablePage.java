@@ -5,7 +5,6 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.List;
 
 public class WebTablePage {
 
@@ -13,125 +12,87 @@ public class WebTablePage {
     WebDriverWait wait;
 
     public WebTablePage(WebDriver driver) {
-
         this.driver = driver;
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
-    // Locators
-    By addBtn = By.id("addNewRecordButton");
-
-    By firstName = By.id("firstName");
-    By lastName = By.id("lastName");
-    By email = By.id("userEmail");
-    By age = By.id("age");
-    By salary = By.id("salary");
-    By department = By.id("department");
-
-    By submitBtn = By.id("submit");
-
-    By searchBox = By.id("searchBox");
-
-    By tableRows = By.cssSelector(".rt-tbody .rt-tr-group");
-
-    By nextBtn = By.cssSelector(".-next button");
-
-    // Add Record
-    public void addRecord(String fn, String ln, String mail,
-                          String ag, String sal, String dept) {
-
-        wait.until(ExpectedConditions.elementToBeClickable(addBtn)).click();
-
-        wait.until(ExpectedConditions.visibilityOfElementLocated(firstName))
-                .sendKeys(fn);
-
-        driver.findElement(lastName).sendKeys(ln);
-        driver.findElement(email).sendKeys(mail);
-        driver.findElement(age).sendKeys(ag);
-        driver.findElement(salary).sendKeys(sal);
-        driver.findElement(department).sendKeys(dept);
-
-        driver.findElement(submitBtn).click();
-
-        // Wait until popup disappears
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(submitBtn));
-
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    // Open page
+    public void openPage() {
+        driver.get("https://demoqa.com/webtables");
+        driver.manage().window().maximize();
     }
 
-    // Search Record
-    public void searchRecord(String name) {
+    // Add record
+    public void addRecord() {
 
-        WebElement search =
-                wait.until(ExpectedConditions.visibilityOfElementLocated(searchBox));
+        driver.findElement(By.id("addNewRecordButton")).click();
 
-        search.clear();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("firstName")));
 
-        search.sendKeys(name);
+        driver.findElement(By.id("firstName")).sendKeys("John");
+        driver.findElement(By.id("lastName")).sendKeys("Doe");
+        driver.findElement(By.id("userEmail")).sendKeys("john@test.com");
+        driver.findElement(By.id("age")).sendKeys("25");
+        driver.findElement(By.id("salary")).sendKeys("50000");
+        driver.findElement(By.id("department")).sendKeys("QA");
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        driver.findElement(By.id("submit")).click();
     }
 
-    // Verify Record Present
-    public boolean isRecordPresent(String text) {
+    // Verify added record
+    public boolean isRecordAdded() {
 
-        List<WebElement> rows = driver.findElements(tableRows);
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(),'John')]")));
 
-        for (WebElement row : rows) {
-
-            String rowText = row.getText();
-
-            System.out.println("ROW TEXT = " + rowText);
-
-            if (rowText.contains(text)) {
-                return true;
-            }
-        }
-
-        return false;
+        return driver.findElement(
+                        By.xpath("//*[contains(text(),'John')]"))
+                .isDisplayed();
     }
 
-    // Delete Record
+    // Search record
+    public void searchRecord() {
+
+        WebElement searchBox = driver.findElement(By.id("searchBox"));
+
+        searchBox.clear();
+        searchBox.sendKeys("John");
+
+        wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("//*[contains(text(),'John')]")));
+    }
+
+    // Verify searched record
+    public boolean isRecordFound() {
+
+        return driver.findElement(
+                        By.xpath("//*[contains(text(),'John')]"))
+                .isDisplayed();
+    }
+
+    // Delete record
     public void deleteRecord() {
 
-        List<WebElement> deleteButtons =
-                driver.findElements(By.cssSelector("[title='Delete']"));
-
-        if (deleteButtons.size() > 0) {
-
-            deleteButtons.get(0).click();
-
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        driver.findElement(By.id("delete-record-4")).click();
     }
 
-    // Pagination
-    public boolean checkPagination() {
+    // Pagination test
+    public void paginationTest() {
 
         try {
 
-            WebElement next =
-                    driver.findElement(nextBtn);
+            WebElement nextBtn = driver.findElement(By.xpath("//button[text()='Next']"));
 
-            return next.isDisplayed();
+            if (nextBtn.isEnabled()) {
+                nextBtn.click();
+                System.out.println("Pagination working");
+            } else {
+                System.out.println("Pagination not available");
+            }
 
         } catch (Exception e) {
 
-            System.out.println("Pagination not available");
-
-            return true;
+            System.out.println("Pagination not found");
         }
     }
 }

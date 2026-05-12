@@ -176,3 +176,4 @@ public class FormPage {
             return driver.findElement(successPopUp).isDisplayed();
         } catch (Exception e) {
             return false;
+        }}}
